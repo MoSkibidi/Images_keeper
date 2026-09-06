@@ -1,0 +1,11 @@
+# Per-machine remembered folders — not meant to be shared/committed.
+.label_previewer_config.json
+
+# Python
+__pycache__/
+*.pyc
+
+# PyInstaller / build output
+build/
+dist/
+*.spec
