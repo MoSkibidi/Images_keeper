@@ -446,6 +446,18 @@ def main():
     parser.add_argument("dest", nargs="?", help="Folder to move kept pairs into")
     args = parser.parse_args()
 
+    if sys.platform == "win32":
+        # Without this, Windows groups the window under pythonw.exe's own
+        # taskbar identity (and its icon) instead of giving this app its
+        # own taskbar entry/icon. Must be set before any window is created.
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                "LabelPreviewer.App"
+            )
+        except Exception:
+            pass
+
     root = Tk()
     root.withdraw()  # hide main window until folders are resolved
 
