@@ -1,6 +1,7 @@
 """
-Generates icon.ico (Windows) and icon.png (Linux/Mac, and Tk window icon)
-for Label Previewer. Run once: ``python make_icon.py``
+Generates icon.ico (Windows), icon.icns (macOS), and icon.png (Linux, and
+the cross-platform Tk window icon) for Label Previewer.
+Run once: ``python make_icon.py``
 """
 
 from PIL import Image, ImageDraw
@@ -58,7 +59,10 @@ def main():
         sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
         bitmap_format="bmp",
     )
-    print("Wrote icon.png and icon.ico")
+    # ICNS (unlike ICO) is expected to use PNG-compressed entries even for
+    # small sizes on modern macOS, so Pillow's default here is fine as-is.
+    icon.save("icon.icns")
+    print("Wrote icon.png, icon.ico, and icon.icns")
 
 
 if __name__ == "__main__":

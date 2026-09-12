@@ -9,9 +9,8 @@ page through a dataset and pull out the good ones.
 
 ## Supported annotation formats
 
-Auto-detected per image — a folder can even mix both:
-
-Images can be `.jpeg`, `.jpg`, `.png`, or `.bmp`.
+Images can be `.jpeg`, `.jpg`, `.png`, or `.bmp`. Annotation format is
+auto-detected per image — a folder can even mix both:
 
 - **Pascal VOC XML** — `image.ext` + `image.xml`
 - **YOLO txt** — `image.ext` + `image.txt`, with class names looked up from
@@ -37,9 +36,11 @@ Your source/destination folder choices are remembered between runs (in
 ## Requirements
 
 - Python 3.9+
-- Pillow (`pip install pillow`)
-- Tkinter — ships with Python on Windows/Mac; on Linux install it separately
-  (e.g. `sudo apt install python3-tk`)
+- Pillow (the installers below install it for you if it's missing;
+  otherwise `pip install pillow` / `pip3 install pillow`)
+- Tkinter — bundled with the official python.org installer on
+  Windows/macOS. On Linux, or on macOS if you installed Python via
+  Homebrew, it needs installing separately (see below).
 
 ## Install
 
@@ -57,6 +58,31 @@ To remove it: `powershell -ExecutionPolicy Bypass -File uninstall.ps1`
 
 You can also just double-click `Label Previewer.pyw` directly from this
 folder without installing anything.
+
+### macOS
+
+```bash
+bash install_mac.sh
+```
+
+Checks that `python3` has Tkinter, installs Pillow for the current user if
+needed, and builds a real double-clickable **Label Previewer.app** in
+`~/Applications` (no admin/sudo needed) with the custom icon. Drag it to
+your Dock, or into `/Applications`, if you want it there instead. Re-run
+the script any time to rebuild it after pulling updates.
+
+To remove it: `bash uninstall_mac.sh`
+
+If `python3` or Tkinter is missing, the script tells you exactly what to
+run — typically:
+
+```bash
+brew install python python-tk
+```
+
+(Get Homebrew from [brew.sh](https://brew.sh) if you don't have it. The
+official installer from [python.org](https://www.python.org/downloads/macos/)
+bundles Tkinter too, if you'd rather not use Homebrew.)
 
 ### Linux
 
@@ -78,7 +104,8 @@ If the folders are omitted, you'll be prompted to pick them the first time.
 ## Files
 
 - `label_previewer.py` — the app
-- `make_icon.py` — regenerates `icon.ico` / `icon.png`
+- `make_icon.py` — regenerates `icon.ico` / `icon.icns` / `icon.png`
 - `install.ps1` / `uninstall.ps1` — Windows installer
+- `install_mac.sh` / `uninstall_mac.sh` — macOS installer
 - `install.sh` — Linux installer
 - `Label Previewer.pyw` — windowless entry point used by the Windows shortcuts
