@@ -24,6 +24,7 @@ auto-detected per image — a folder can even mix both:
 |---|---|
 | `→` / `D` | Next image |
 | `←` / `A` | Previous image |
+| `G` | Jump straight to a given image number |
 | `Enter` / `M` | Move current pair to the keep folder, then advance |
 | `Backspace` | Undo the last move |
 | `O` | Choose a different keep (destination) folder |
@@ -72,45 +73,46 @@ pick a label, no separate save step needed:
 
 ## Install
 
+The installers below now take care of everything themselves — Python,
+Tkinter, and Pillow are all checked for and installed automatically if
+they're missing, so there's no separate "install the requirements first"
+step. Just download this repo (green **Code → Download ZIP** button on
+GitHub, or `git clone`) and follow the steps for your OS.
+
 ### Windows
 
-```powershell
-powershell -ExecutionPolicy Bypass -File install.ps1
-```
+1. Double-click **`install.bat`**.
+2. If it says Python isn't installed, it'll try to install it for you via
+   `winget` — once that finishes, just double-click `install.bat` again.
+3. A "Label Previewer" shortcut appears on your Desktop and in the Start
+   Menu, with the app icon. Use that from now on.
 
-This installs the app to `%LOCALAPPDATA%\LabelPreviewer`, makes sure Pillow
-is installed, and adds "Label Previewer" shortcuts to your Desktop and Start
-Menu (with the app icon). Re-run it any time to update the installed copy.
+To remove it, double-click **`uninstall.bat`**.
 
-To remove it: `powershell -ExecutionPolicy Bypass -File uninstall.ps1`
-
-You can also just double-click `Label Previewer.pyw` directly from this
-folder without installing anything.
+Prefer the command line? `powershell -ExecutionPolicy Bypass -File install.ps1`
+(and `uninstall.ps1` to remove). You can also just double-click
+`Label Previewer.pyw` directly from this folder without installing
+anything.
 
 ### macOS
 
-```bash
-bash install_mac.sh
-```
+1. Double-click **`install_mac.command`**. (First time only: if macOS
+   warns the file is from an unidentified developer, right-click it →
+   **Open** instead, and confirm.)
+2. It installs Python/Tkinter/Pillow for you (via Homebrew, if you have
+   it) and builds a real **Label Previewer.app** in `~/Applications`.
+3. Drag it to your Dock, or into `/Applications`, if you want it there
+   instead. Re-run the `.command` file any time to rebuild it after
+   pulling updates.
 
-Checks that `python3` has Tkinter, installs Pillow for the current user if
-needed, and builds a real double-clickable **Label Previewer.app** in
-`~/Applications` (no admin/sudo needed) with the custom icon. Drag it to
-your Dock, or into `/Applications`, if you want it there instead. Re-run
-the script any time to rebuild it after pulling updates.
+To remove it, double-click **`uninstall_mac.command`**.
 
-To remove it: `bash uninstall_mac.sh`
+Prefer the terminal? `bash install_mac.sh` (and `bash uninstall_mac.sh` to
+remove) do the same thing.
 
-If `python3` or Tkinter is missing, the script tells you exactly what to
-run — typically:
-
-```bash
-brew install python python-tk
-```
-
-(Get Homebrew from [brew.sh](https://brew.sh) if you don't have it. The
-official installer from [python.org](https://www.python.org/downloads/macos/)
-bundles Tkinter too, if you'd rather not use Homebrew.)
+If you don't have Homebrew and don't want it, install Python from
+[python.org](https://www.python.org/downloads/macos/) instead (its
+installer bundles Tkinter already), then run the installer again.
 
 ### Linux
 
@@ -118,22 +120,29 @@ bundles Tkinter too, if you'd rather not use Homebrew.)
 bash install.sh
 ```
 
-Checks for `python3-tk`/Pillow and adds a "Label Previewer" entry to your
-application menu.
+Detects your package manager (apt/dnf/pacman/zypper) and uses it to install
+`python3-tk` and Pillow automatically (you'll be prompted for your `sudo`
+password), then adds a "Label Previewer" entry to your application menu.
 
-### Run without installing
+### Run without installing (any OS)
 
 ```bash
-python label_previewer.py [source_folder] [dest_folder]
+python3 label_previewer.py [source_folder] [dest_folder]
 ```
 
 If the folders are omitted, you'll be prompted to pick them the first time.
+This still needs Python 3.9+ with Pillow and Tkinter available — see
+[Requirements](#requirements) above, or just run the installer for your OS,
+which sets all that up for you either way.
 
 ## Files
 
 - `label_previewer.py` — the app
 - `make_icon.py` — regenerates `icon.ico` / `icon.icns` / `icon.png`
-- `install.ps1` / `uninstall.ps1` — Windows installer
-- `install_mac.sh` / `uninstall_mac.sh` — macOS installer
+- `install.ps1` / `uninstall.ps1` — Windows installer (PowerShell)
+- `install.bat` / `uninstall.bat` — double-clickable wrappers for the above
+- `install_mac.sh` / `uninstall_mac.sh` — macOS installer (shell script)
+- `install_mac.command` / `uninstall_mac.command` — double-clickable
+  wrappers for the above
 - `install.sh` — Linux installer
 - `Label Previewer.pyw` — windowless entry point used by the Windows shortcuts

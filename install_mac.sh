@@ -2,34 +2,70 @@
 # Label Previewer installer (macOS)
 #
 # Builds a real double-clickable "Label Previewer.app" in ~/Applications
-# (no sudo needed) that runs this script's label_previewer.py with the
-# custom icon. Re-run any time to update it.
+# (no sudo needed), automatically installing whatever it needs along the
+# way (Tkinter via Homebrew, Pillow via pip). Re-run any time to update it.
 #
 #   bash install_mac.sh
+#
+# Or just double-click install_mac.command in Finder - no Terminal typing
+# required.
 
-set -euo pipefail
+set -uo pipefail
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+echo "== Label Previewer installer (macOS) =="
+echo
+
 if ! command -v python3 >/dev/null 2>&1; then
-    echo "python3 not found. Install it first, e.g.:"
-    echo "  brew install python"
-    echo "(see https://brew.sh if you don't have Homebrew, or use the official"
-    echo " installer from https://www.python.org/downloads/macos/)"
-    exit 1
+    echo "python3 not found."
+    if command -v brew >/dev/null 2>&1; then
+        echo "Installing Python via Homebrew..."
+        brew install python
+    else
+        echo "Install Python 3 first, then re-run this script:" >&2
+        echo "  - Homebrew (https://brew.sh): brew install python" >&2
+        echo "  - or the official installer: https://www.python.org/downloads/macos/" >&2
+        exit 1
+    fi
 fi
 PYTHON_BIN="$(command -v python3)"
 
 if ! "$PYTHON_BIN" -c "import tkinter" >/dev/null 2>&1; then
-    echo "tkinter not found for $PYTHON_BIN."
-    echo "If you installed Python via Homebrew:  brew install python-tk"
-    echo "If you used the python.org installer, tkinter should already be"
-    echo "included - try reinstalling from https://www.python.org/downloads/macos/"
-    exit 1
+    echo "Tkinter not found for $PYTHON_BIN."
+    if command -v brew >/dev/null 2>&1; then
+        PYVER="$("$PYTHON_BIN" -c 'import sys; print(f"{sys.version_info[0]}.{sys.version_info[1]}")')"
+        echo "Installing it via Homebrew (python-tk@$PYVER)..."
+        if ! brew install "python-tk@$PYVER"; then
+            echo "That exact formula wasn't available, trying the generic one..."
+            brew install python-tk
+        fi
+    else
+        echo "Homebrew isn't installed, so this can't be done automatically. Either:" >&2
+        echo "  - install Homebrew (https://brew.sh) and re-run this script, or" >&2
+        echo "  - reinstall Python from https://www.python.org/downloads/macos/" >&2
+        echo "    (its installer bundles Tkinter already)." >&2
+        exit 1
+    fi
+    if ! "$PYTHON_BIN" -c "import tkinter" >/dev/null 2>&1; then
+        echo "Tkinter still isn't importable - see the messages above." >&2
+        exit 1
+    fi
 fi
 
 if ! "$PYTHON_BIN" -c "import PIL" >/dev/null 2>&1; then
     echo "Pillow not found, installing it for the current user..."
-    "$PYTHON_BIN" -m pip install --user pillow
+    err_file="$(mktemp)"
+    if ! "$PYTHON_BIN" -m pip install --user pillow 2>"$err_file"; then
+        if grep -q "externally-managed-environment" "$err_file"; then
+            echo "This Python is externally managed (Homebrew); retrying with --break-system-packages..."
+            "$PYTHON_BIN" -m pip install --user --break-system-packages pillow
+        else
+            cat "$err_file" >&2
+            rm -f "$err_file"
+            exit 1
+        fi
+    fi
+    rm -f "$err_file"
 fi
 
 APPS_DIR="$HOME/Applications"
@@ -69,6 +105,7 @@ cat > "$BUNDLE/Contents/Info.plist" <<PLIST
 </plist>
 PLIST
 
-echo "Installed: $BUNDLE"
+echo
+echo "Done! Installed: $BUNDLE"
 echo "Find it in ~/Applications - double-click it, or drag it to your Dock"
 echo "or into /Applications."

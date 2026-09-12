@@ -16,6 +16,7 @@ Controls
 --------
   Right / D             -> next image
   Left  / A             -> previous image
+  G                     -> jump straight to a given image number
   Enter / M             -> move current pair to the "keep" folder, then advance
   Backspace             -> undo the last move (moves the pair back)
   O                     -> choose a different "keep" (destination) folder
@@ -56,7 +57,7 @@ import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
-from tkinter import Tk, Canvas, Menu, PhotoImage, filedialog, messagebox, StringVar
+from tkinter import Tk, Canvas, Menu, PhotoImage, filedialog, messagebox, simpledialog, StringVar
 from tkinter import ttk
 
 from PIL import Image, ImageTk
@@ -297,7 +298,8 @@ class App:
         status_bar.pack(fill="x", side="bottom")
 
         self.help_var = StringVar(
-            value="←/→ or A/D: navigate    Enter/M: move to keep folder    "
+            value="←/→ or A/D: navigate    G: go to image #    "
+                  "Enter/M: move to keep folder    "
                   "Backspace: undo last move    O: change keep folder    "
                   "S: change source folder    Q/Esc: quit    |    "
                   "Drag a corner: resize box    Drag inside: move box    "
@@ -330,6 +332,8 @@ class App:
         root.bind("<Delete>", lambda e: self.delete_hovered_box())
         root.bind("<x>", lambda e: self.delete_hovered_box())
         root.bind("<X>", lambda e: self.delete_hovered_box())
+        root.bind("<g>", lambda e: self.go_to_index())
+        root.bind("<G>", lambda e: self.go_to_index())
         root.bind("<Configure>", self._on_resize)
 
         # Box editing: drag corners/edges to resize, drag inside to move,
@@ -361,6 +365,22 @@ class App:
         if self.index > 0:
             self.index -= 1
             self.render()
+
+    def go_to_index(self):
+        if not self.pairs:
+            return
+        n = simpledialog.askinteger(
+            "Go to image",
+            f"Image number (1-{len(self.pairs)}):",
+            parent=self.root,
+            minvalue=1,
+            maxvalue=len(self.pairs),
+            initialvalue=self.index + 1,
+        )
+        if n is None:
+            return
+        self.index = n - 1
+        self.render()
 
     def _on_resize(self, event):
         # Debounce redraw on resize to avoid flicker/lag while dragging.

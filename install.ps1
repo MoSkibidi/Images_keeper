@@ -1,16 +1,37 @@
 # Label Previewer installer (Windows)
 #
-# Copies the app to a stable per-user folder, makes sure Pillow is
-# installed, and creates Desktop + Start Menu shortcuts with the app icon.
-# Safe to re-run any time (it just overwrites the previous install).
+# Installs Python if it's missing (via winget), copies the app to a stable
+# per-user folder, makes sure Pillow is installed, and creates Desktop +
+# Start Menu shortcuts with the app icon. Safe to re-run any time (it just
+# overwrites the previous install).
 #
-# Run it:
+# Just double-click install.bat, or run:
 #   powershell -ExecutionPolicy Bypass -File install.ps1
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 $sourceDir = $PSScriptRoot
 $installDir = Join-Path $env:LOCALAPPDATA "LabelPreviewer"
+
+Write-Host "== Label Previewer installer (Windows) =="
+Write-Host ""
+
+$python = (Get-Command python.exe -ErrorAction SilentlyContinue).Source
+if (-not $python) {
+    Write-Host "Python not found."
+    $winget = Get-Command winget.exe -ErrorAction SilentlyContinue
+    if ($winget) {
+        Write-Host "Installing Python via winget (this can take a minute)..."
+        winget install -e --id Python.Python.3.12 --source winget --accept-source-agreements --accept-package-agreements
+        Write-Host ""
+        Write-Host "Python was just installed. Please close this window and run" -ForegroundColor Yellow
+        Write-Host "install.bat (or this script) once more so Windows picks up the new PATH." -ForegroundColor Yellow
+        exit 0
+    } else {
+        Write-Warning "winget isn't available either. Install Python 3 from https://www.python.org/downloads/ (check 'Add python.exe to PATH' during setup), then re-run this script."
+        exit 1
+    }
+}
 
 Write-Host "Installing Label Previewer to $installDir ..."
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
@@ -19,17 +40,23 @@ foreach ($file in @("label_previewer.py", "Label Previewer.pyw", "icon.ico", "ic
     Copy-Item -Path (Join-Path $sourceDir $file) -Destination $installDir -Force
 }
 
+# Make sure Tkinter is available (bundled by the official python.org
+# installer; some minimal or Microsoft Store builds of Python omit it).
+& $python -c "import tkinter" *> $null
+if ($LASTEXITCODE -ne 0) {
+    Write-Warning "Tkinter isn't available for $python. If you installed Python from the Microsoft Store, reinstall it from https://www.python.org/downloads/ instead (its installer bundles Tkinter)."
+}
+
 # Make sure Pillow is available for whichever Python will run the app.
-$python = (Get-Command python.exe -ErrorAction SilentlyContinue).Source
-if ($python) {
-    Write-Host "Checking for Pillow..."
-    & $python -m pip show pillow *> $null
+Write-Host "Checking for Pillow..."
+& $python -m pip show pillow *> $null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Installing Pillow..."
+    & $python -m pip install --quiet pillow
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Installing Pillow..."
-        & $python -m pip install --quiet pillow
+        Write-Host "That failed; retrying with --user --break-system-packages..."
+        & $python -m pip install --quiet --user --break-system-packages pillow
     }
-} else {
-    Write-Warning "Python was not found on PATH. Install Python 3 (with tkinter) before running the app."
 }
 
 $pythonw = (Get-Command pythonw.exe -ErrorAction SilentlyContinue).Source
@@ -68,4 +95,5 @@ if ($pythonw) {
     Write-Warning "pythonw.exe not found - skipping shortcut creation."
 }
 
-Write-Host "Done. Launch it from the Desktop or Start Menu."
+Write-Host ""
+Write-Host "Done! Launch 'Label Previewer' from the Desktop or Start Menu." -ForegroundColor Green
