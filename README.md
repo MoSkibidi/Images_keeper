@@ -20,7 +20,7 @@ auto-detected per image — a folder can even mix both:
 
 ## Controls
 
-| Key | Action |
+| Key / Mouse | Action |
 |---|---|
 | `→` / `D` | Next image |
 | `←` / `A` | Previous image |
@@ -29,9 +29,37 @@ auto-detected per image — a folder can even mix both:
 | `O` | Choose a different keep (destination) folder |
 | `S` | Choose a different source (raw) folder |
 | `Q` / `Esc` | Quit |
+| Drag a box corner | Resize that box |
+| Drag inside a box | Move that box |
+| Right-click a box | Relabel it (from labels already used in the dataset) or delete it |
+| `Delete` / `X` | Delete the box currently under the cursor |
 
 Your source/destination folder choices are remembered between runs (in
 `.label_previewer_config.json`, next to the script — not committed to git).
+
+## Editing boxes
+
+Each box is drawn with small square handles at its 4 corners:
+
+- **Drag a corner** to resize the box.
+- **Drag anywhere else inside the box** to move it (it's clamped so it can't
+  be dragged outside the image).
+- **Right-click a box** for a menu with **Delete box**, plus every label
+  already used elsewhere in the dataset (all `<name>` values seen across
+  your `.xml` files, plus your `classes.names` list) — pick a label to
+  relabel it.
+- **`Delete` or `X`** deletes the box currently under the mouse cursor,
+  without needing to right-click.
+
+Edits are saved to the annotation file the moment you release the drag or
+pick a label, no separate save step needed:
+
+- **YOLO `.txt`** files are rewritten in full, with every box's coordinates
+  recomputed and normalized.
+- **Pascal VOC XML** files have just the touched `<object>`'s `<bndbox>` /
+  `<name>` updated in place, via Python's `xml.etree.ElementTree`. The box
+  data is correct, but note this doesn't preserve the original file's exact
+  formatting/whitespace/comments byte-for-byte.
 
 ## Requirements
 
