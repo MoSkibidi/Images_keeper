@@ -11,8 +11,10 @@ page through a dataset and pull out the good ones.
 
 Auto-detected per image — a folder can even mix both:
 
-- **Pascal VOC XML** — `image.jpeg` + `image.xml`
-- **YOLO txt** — `image.jpeg` + `image.txt`, with class names looked up from
+Images can be `.jpeg`, `.jpg`, `.png`, or `.bmp`.
+
+- **Pascal VOC XML** — `image.ext` + `image.xml`
+- **YOLO txt** — `image.ext` + `image.txt`, with class names looked up from
   a shared `classes.names` (or `classes.txt` / `obj.names`) file in the same
   folder — one class name per line, matching the class ids used in the
   `.txt` files.

@@ -1,12 +1,13 @@
 """
 Label Previewer
 ================
-Browse thousands of (image.jpeg, annotation) pairs, see the bounding boxes
+Browse thousands of (image, annotation) pairs, see the bounding boxes
 drawn on the image, and move pairs you want to keep into a separate folder.
+Images can be .jpeg/.jpg/.png/.bmp.
 
 Two annotation formats are supported, auto-detected per image:
-  - Pascal VOC XML   : image.jpeg + image.xml
-  - YOLO txt         : image.jpeg + image.txt, with class names looked up
+  - Pascal VOC XML   : image.ext + image.xml
+  - YOLO txt         : image.ext + image.txt, with class names looked up
                         from a shared "classes.names" (or "classes.txt")
                         file in the source folder (one class name per line,
                         line number = class id used in the .txt files).
@@ -46,7 +47,7 @@ from tkinter import ttk
 
 from PIL import Image, ImageTk
 
-IMAGE_EXTS = (".jpeg", ".jpg")
+IMAGE_EXTS = (".jpeg", ".jpg", ".png", ".bmp")
 CLASSES_FILENAMES = ("classes.names", "classes.txt", "obj.names")
 CONFIG_PATH = Path(__file__).with_name(".label_previewer_config.json")
 

@@ -47,9 +47,16 @@ def build_icon() -> Image.Image:
 def main():
     icon = build_icon()
     icon.save("icon.png")
+    # bitmap_format="bmp" makes Pillow store each entry as classic
+    # BMP/DIB pixel data instead of PNG. Pillow's ICO default (PNG for
+    # every size) isn't understood by some Windows icon-loading paths
+    # (e.g. the legacy System.Drawing.Icon API), which then render
+    # garbage instead of falling back gracefully - this is what was
+    # causing the Desktop/taskbar icon to show wrong.
     icon.save(
         "icon.ico",
         sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
+        bitmap_format="bmp",
     )
     print("Wrote icon.png and icon.ico")
 
